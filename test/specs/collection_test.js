@@ -11,45 +11,79 @@ describe('Backbone.Firebase.Collection', function() {
     return expect(Collection).to.be.ok;
   });
 
-  it('should extend construct', function() {
-    var Collection = Backbone.Firebase.Collection.extend({
-      url: 'Mock://'
-    });
-    return expect(new Collection()).to.be.ok;
-  });
-
   // throw err
-  it('should throw an error if an invalid url is provided', function() {
+  it('should throw an error if config is not provided', function() {
     var Collection = Backbone.Firebase.Collection.extend({
       url: true
     });
     try {
       var model = new Collection();
     } catch (err) {
-      assert(err.message === 'url parameter required');
+      assert(err.message === 'firebase config object required');
     }
   });
 
-  it('should call Backbone.Firebase._determineRef with url as a function', function() {
+  // throw err
+  it('should throw an error if config is missing databaseURL', function() {
+    var Collection = Backbone.Firebase.Collection.extend({
+      config: {}
+    });
+    try {
+      var model = new Collection();
+    } catch (err) {
+      assert(err.message === 'databaseURL required');
+    }
+  });
+
+  // throw err
+  it('should throw an error if config is missing both apiKey and serviceAccount', function() {
+    var Collection = Backbone.Firebase.Collection.extend({
+      config: {
+        'databaseURL': 'Mock://'
+      }
+    });
+    try {
+      var model = new Collection();
+    } catch (err) {
+      assert(err.message === 'an apiKey or serviceAccount is required');
+    }
+  });  
+
+  it('should extend construct', function() {
+    var Collection = Backbone.Firebase.Collection.extend({
+      config: {
+        'databaseURL': 'Mock://',
+        'apiKey': 'mockkey'
+      }
+    });
+    return expect(new Collection()).to.be.ok;
+  });
+
+/*
+  it('should throw an error if an invalid url is provided', function() {
     sinon.spy(Backbone.Firebase, '_determineRef');
     var Collection = Backbone.Firebase.Collection.extend({
       url: function() {
         return '';
       }
     });
-    var collection = new Collection();
-    expect(Backbone.Firebase._determineRef.calledOnce).to.be.ok;
-    Backbone.Firebase._determineRef.restore();
+    try {
+      var model = new Collection();
+    } catch (err) {
+      assert(err.message === 'firebase config object required');
+    }
   });
 
-  it('should call Backbone.Firebase._determineRef with url as a string', function() {
+  it('should throw an error if an invalid url is provided', function() {
     sinon.spy(Backbone.Firebase, '_determineRef');
     var Collection = Backbone.Firebase.Collection.extend({
       url: 'Mock://'
     });
-    var collection = new Collection();
-    expect(Backbone.Firebase._determineRef.calledOnce).to.be.ok;
-    Backbone.Firebase._determineRef.restore();
+    try {
+      var model = new Collection();
+    } catch (err) {
+      assert(err.message === 'firebase config object required');
+    }
   });
 
   it('should call Backbone.Firebase._determineRef with url as a Firebase reference', function() {
@@ -838,6 +872,6 @@ describe('Backbone.Firebase.Collection', function() {
 
     });
 
-  });
+  });*/
 
 });

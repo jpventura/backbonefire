@@ -25,7 +25,7 @@
     "package.json"
   ],
   "dependencies": {
-    "firebase": "2.0.x"
+    "firebase": "^3.0.2"
   },
   "devDependencies": {
     "chai": "~3.5.0",

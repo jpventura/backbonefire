@@ -164,7 +164,7 @@
    *    primitive - Throw error, primitives cannot be synced
    *    null      - Create blank object and assign id
    */
-  Backbone.Firebase._checkId = function(snap, idAttribute) {
+  Backbone.Firebase._checkId = function(snap) {
     var model = snap.val();
 
     // if the model is a primitive throw an error
@@ -180,7 +180,7 @@
     }
 
     // set the id to the snapshot's key
-    model[idAttribute] = Backbone.Firebase._getKey(snap);
+    model.id = Backbone.Firebase._getKey(snap);
 
     return model;
   };
@@ -348,7 +348,7 @@
       }
 
     },
-
+    
     sync: function(method, model, options) {
       Backbone.Firebase.sync(method, model, options);
     },
@@ -359,7 +359,7 @@
     _setId: function(snap) {
       // if the item new set the name to the id
       if(this.isNew()) {
-        this.set(this.idAttribute, Backbone.Firebase._getKey(snap), { silent: true });
+        this.set('id', Backbone.Firebase._getKey(snap), { silent: true });
       }
     },
 
@@ -376,7 +376,7 @@
      * by comparing the keys that have been removed.
      */
     _unsetAttributes: function(snap) {
-      var newModel = Backbone.Firebase._checkId(snap, this.idAttribute);
+      var newModel = Backbone.Firebase._checkId(snap);
 
       if (typeof newModel === 'object' && newModel !== null) {
         var diff = _.difference(_.keys(this.attributes), _.keys(newModel));
@@ -399,7 +399,7 @@
       var modelObj = model.changedAttributes();
       _.each(model.changed, function(value, key) {
         if (typeof value === 'undefined' || value === null) {
-          if (key == model.idAttribute) {
+          if (key == 'id') {
             delete modelObj[key];
           } else {
             modelObj[key] = null;
@@ -438,8 +438,7 @@
        * Backbone.Firebase.sync with the correct method.
        */
       create: function(model, options) {
-        // XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
-        model[this.idAttribute] = model[this.idAttribute] || Backbone.Firebase._getKey(this.firebase.push());
+        model.id = Backbone.Firebase._getKey(this.firebase.push());
         options = _.extend({ autoSync: false }, options);
         return Backbone.Collection.prototype.create.call(this, model, options);
       },
@@ -449,8 +448,7 @@
        * Backbone.Firebase.sync with the correct method.
        */
       add: function(model, options) {
-        // XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
-        model[this.idAttribute] = model[this.idAttribute] || Backbone.Firebase._getKey(this.firebase.push());
+        model.id = Backbone.Firebase._getKey(this.firebase.push());
         options = _.extend({ autoSync: false }, options);
         return Backbone.Collection.prototype.add.call(this, model, options);
       },
@@ -505,6 +503,7 @@
       // Defer the listener incase the data is cached, because
       // then the once call would be synchronous
       _.defer(_.bind(function() {
+
         this.firebase.once('value', function() {
           // indicate that the call has been received from the server
           // and the data has successfully loaded
@@ -542,8 +541,7 @@
             this._suppressEvent = true;
           }
 
-          // XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
-          var childRef = this.firebase.ref().child(model[this.idAttribute]);
+          var childRef = this.firebase.child(model.id);
           childRef.set(model, _.bind(options.success, model));
         }
 
@@ -570,8 +568,7 @@
 
         for (var i = 0; i < parsed.length; i++) {
           var model = parsed[i];
-          // XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
-          var childRef = this.firebase.child(model[this.idAttribute]);
+          var childRef = this.firebase.child(model.id);
           if (options.silent === true) {
             this._suppressEvent = true;
           }
@@ -631,8 +628,9 @@
         for (var i = 0; i < models.length; i++) {
           var model = models[i];
 
-          // XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
-          model[this.idAttribute] = model[this.idAttribute] || Backbone.Firebase._getKey(this.firebase.push());
+          if (!model.id) {
+            model.id = Backbone.Firebase._getKey(this.firebase.push());
+          }
 
           // call Backbone's prepareModel to apply options
           model = Backbone.Collection.prototype._prepareModel.call(
@@ -651,8 +649,7 @@
       },
 
       _childAdded: function(snap) {
-        // XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
-        var model = Backbone.Firebase._checkId(snap, this.idAttribute);
+        var model = Backbone.Firebase._checkId(snap);
 
         if (this._suppressEvent === true) {
           this._suppressEvent = false;
@@ -660,7 +657,7 @@
         } else {
           Backbone.Collection.prototype.add.call(this, [model]);
         }
-        this.get(model[this.idAttribute])._remoteAttributes = model;
+        this.get(model.id)._remoteAttributes = model;
       },
 
       // TODO: child_moved is emitted when the priority for a child is changed, so it
@@ -672,12 +669,10 @@
       // when a model has changed remotely find differences between the
       // local and remote data and apply them to the local model
       _childChanged: function(snap) {
-        // XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
-        var idAttribute = this.idAttribute;
-        var model = Backbone.Firebase._checkId(snap, idAttribute);
+        var model = Backbone.Firebase._checkId(snap);
 
         var item = _.find(this.models, function(child) {
-          return child.id == model[idAttribute];
+          return child.id == model.id;
         });
 
         if (!item) {
@@ -706,8 +701,7 @@
       // remove an item from the collection when removed remotely
       // provides the ability to remove siliently
       _childRemoved: function(snap) {
-        // XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
-        var model = Backbone.Firebase._checkId(snap, this.idAttribute);
+        var model = Backbone.Firebase._checkId(snap);
 
         if (this._suppressEvent === true) {
           this._suppressEvent = false;
@@ -740,7 +734,7 @@
         // consolidate the updates to Firebase
         updateAttributes = this._compareAttributes(remoteAttributes, localAttributes);
 
-        ref = this.firebase.ref().child(model.id);
+        ref = this.firebase.child(model.id);
 
         // if '.priority' is present setWithPriority
         // else do a regular update
@@ -833,10 +827,6 @@
         SyncCollection.apply(this, arguments);
       }
 
-      // XXX before breaking model prototype: worked around this.model.prototype.idAttribute with this.idAttribute
-      this.idAttribute = this.idAttribute || BaseModel.prototype.idAttribute;
-
-      // XXX breaking the model prototype
       // Intercept the given model and give it a firebase ref.
       // Have it listen to local changes silently. When attributes
       // are unset, the callback will set them to null so that they
@@ -845,7 +835,7 @@
 
         var newItem = new BaseModel(attrs, opts);
         newItem.autoSync = false;
-        newItem.firebase = self.firebase.ref().child(newItem.id);
+        newItem.firebase = self.firebase.child(newItem.id);
         newItem.sync = Backbone.Firebase.sync;
         newItem.on('change', function(model) {
           var updated = Backbone.Firebase.Model.prototype._updateModel(model);
