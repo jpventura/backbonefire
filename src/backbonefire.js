@@ -15,13 +15,13 @@
 
   /**
    * A utility for retrieving the key name of a Firebase ref or
-   * DataSnapshot. This is backwards-compatible with `name()`
-   * from Firebase 1.x.x and `key()` from Firebase 2.0.0+. Once
-   * support for Firebase 1.x.x is dropped in BackboneFire, this
+   * DataSnapshot. This is backwards-compatible with `key()`
+   * from Firebase 2.x.x and `key` from Firebase 3.x.x+. Once
+   * support for Firebase 2.x.x is dropped in BackboneFire, this
    * helper can be removed.
    */
   Backbone.Firebase._getKey = function(refOrSnapshot) {
-    return (typeof refOrSnapshot.key === 'function') ? refOrSnapshot.key() : refOrSnapshot.name();
+    return (_.isFunction(refOrSnapshot.key)) ? refOrSnapshot.key() : refOrSnapshot.key;
   };
 
   /**
