@@ -270,7 +270,7 @@
 
     }
 
-    SyncModel.protoype = {
+    SyncModel.prototype = {
       fetch: function(options) {
         Backbone.Firebase._promiseEvent({
           syncPromise: this._initialSync,
@@ -341,9 +341,9 @@
 
       if(!this.autoSync) {
         OnceModel.apply(this, arguments);
-        _.extend(this, OnceModel.protoype);
+        _.extend(this, OnceModel.prototype);
       } else {
-        _.extend(this, SyncModel.protoype);
+        _.extend(this, SyncModel.prototype);
         SyncModel.apply(this, arguments);
       }
 
@@ -431,7 +431,7 @@
     function OnceCollection() {
 
     }
-    OnceCollection.protoype = {
+    OnceCollection.prototype = {
       /**
        * Create an id from a Firebase push-id and call Backbone.create, which
        * will do prepare the models and trigger the proper events and then call
@@ -527,7 +527,7 @@
       this.listenTo(this, 'destroy', this._removeModel, this);
     }
 
-    SyncCollection.protoype = {
+    SyncCollection.prototype = {
       add: function(models, options) {
         // prepare models
         var parsed = this._parseModels(models);
@@ -826,10 +826,10 @@
       // if we are not autoSyncing, the model needs
       // to be a non-autoSynced model
       if(!this.autoSync) {
-        _.extend(this, OnceCollection.protoype);
+        _.extend(this, OnceCollection.prototype);
         OnceCollection.apply(this, arguments);
       } else {
-        _.extend(this, SyncCollection.protoype);
+        _.extend(this, SyncCollection.prototype);
         SyncCollection.apply(this, arguments);
       }
 
