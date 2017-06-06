@@ -528,37 +528,37 @@
     }
 
     SyncCollection.prototype = {
-      add: function(models, options) {
-        // prepare models
-        var parsed = this._parseModels(models);
+      add: function(records, options) {
+        // prepare records
+        var parsed = this._parseModels(records);
         options = options ? _.clone(options) : {};
         options.success =
           _.isFunction(options.success) ? options.success : function() {};
 
         for (var i = 0; i < parsed.length; i++) {
-          var model = parsed[i];
+          var record = parsed[i];
 
           if (options.silent === true) {
             this._suppressEvent = true;
           }
 
           // XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
-          var childRef = this.reference.child(model[this.idAttribute]);
-          childRef.set(model, _.bind(options.success, model));
+          var childRef = this.reference.child(record[this.idAttribute]);
+          childRef.set(record, _.bind(options.success, record));
         }
 
         return parsed;
       },
 
-      create: function(model, options) {
+      create: function(record, options) {
         options = options ? _.clone(options) : {};
         if (options.wait) {
           this._log('Wait option provided to create, ignoring.');
         }
-        if (!model) {
+        if (!record) {
           return false;
         }
-        var set = this.add([model], options);
+        var set = this.add([record], options);
         return set[0];
       },
 

@@ -403,10 +403,10 @@ define([
          * will do prepare the models and trigger the proper events and then call
          * Backbone.Firebase.sync with the correct method.
          */
-        add: function(model, options) {
-          model.id = Backbone.Firebase._getKey(this.reference.push());
+        add: function(record, options) {
+          record.id = Backbone.Firebase._getKey(this.reference.push());
           options = _.extend({ autoSync: false }, options);
-          return Backbone.Collection.prototype.add.apply(this, [model, options]);
+          return Backbone.Collection.prototype.add.apply(this, [record, options]);
         },
         /**
          * Proxy to Backbone.Firebase.sync
@@ -471,35 +471,35 @@ define([
           return model.id;
         },
 
-        add: function(models, options) {
-          var parsed = this._parseModels(models);
+        add: function(records, options) {
+          var parsed = this._parseModels(records);
           options = options ? _.clone(options) : {};
           options.success =
             _.isFunction(options.success) ? options.success : function() {};
 
           for (var i = 0; i < parsed.length; i++) {
-            var model = parsed[i];
+            var record = parsed[i];
 
             if (options.silent === true) {
               this._suppressEvent = true;
             }
 
-            var childRef = this.reference.ref().child(model.id);
-            childRef.set(model, _.bind(options.success, model));
+            var childRef = this.reference.ref().child(record.id);
+            childRef.set(record, _.bind(options.success, record));
           }
 
           return parsed;
         },
 
-        create: function(model, options) {
+        create: function(record, options) {
           options = options ? _.clone(options) : {};
           if (options.wait) {
             this._log('Wait option provided to create, ignoring.');
           }
-          if (!model) {
+          if (!record) {
             return false;
           }
-          var set = this.add([model], options);
+          var set = this.add([record], options);
           return set[0];
         },
 
