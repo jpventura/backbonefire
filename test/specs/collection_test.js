@@ -146,13 +146,13 @@ describe('Backbone.Firebase.Collection', function() {
     });
 
     it('should call setWithPriority on a Firebase reference', function() {
-      collection._setWithPriority(collection.firebase, item);
-      //collection.firebase.flush();
-      expect(collection.firebase.setWithPriority.calledOnce).to.be.ok;
+      collection._setWithPriority(collection.reference, item);
+      //collection.reference.flush();
+      expect(collection.reference.setWithPriority.calledOnce).to.be.ok;
     });
 
     it('should delete local priority', function() {
-      var setItem = collection._setWithPriority(collection.firebase, item);
+      var setItem = collection._setWithPriority(collection.reference, item);
       expect(setItem['.priority']).to.be.undefined;
     });
 
@@ -165,8 +165,8 @@ describe('Backbone.Firebase.Collection', function() {
         url: 'Mock://'
       });
       collection = new Collection();
-      collection._updateToFirebase(collection.firebase, { id: '1' });
-      expect(collection.firebase.update.calledOnce).to.be.ok;
+      collection._updateToFirebase(collection.reference, { id: '1' });
+      expect(collection.reference.update.calledOnce).to.be.ok;
     });
 
   });
@@ -260,7 +260,7 @@ describe('Backbone.Firebase.Collection', function() {
       models.on('add', spy);
 
       models.add({ title: 'blah' });
-      models.firebase.flush();
+      models.reference.flush();
       return expect(spy.called).to.be.ok;
     });
 
@@ -270,7 +270,7 @@ describe('Backbone.Firebase.Collection', function() {
       it('should ignore options.wait', function() {
         sinon.spy(collection, '_log');
         collection.create({ firstname: 'David'}, { wait: function() { }});
-        collection.firebase.flush();
+        collection.reference.flush();
 
         expect(collection._log.calledOnce).to.be.ok;
 
@@ -282,7 +282,7 @@ describe('Backbone.Firebase.Collection', function() {
         sinon.spy(collection, 'add');
 
         collection.create({ firstname: 'David'});
-        collection.firebase.flush();
+        collection.reference.flush();
 
         expect(collection.add.calledOnce).to.be.true;
 
@@ -292,7 +292,7 @@ describe('Backbone.Firebase.Collection', function() {
       // return false for no model
       it('should return false when no model is provided', function() {
         var expectFalse = collection.create();
-        collection.firebase.flush();
+        collection.reference.flush();
         expect(expectFalse).to.be.false;
       });
 
@@ -305,7 +305,7 @@ describe('Backbone.Firebase.Collection', function() {
         sinon.spy(Backbone.Firebase, '_setWithCheck')
 
         collection.remove({ id: '1'});
-        collection.firebase.flush();
+        collection.reference.flush();
 
         expect(Backbone.Firebase._setWithCheck.calledOnce).to.be.ok;
 
@@ -316,7 +316,7 @@ describe('Backbone.Firebase.Collection', function() {
       it('should set _suppressEvent to true when set silently', function() {
         collection.remove({ id: '1'}, { silent: true });
         // TODO: investigate
-        //collection.firebase.flush();
+        //collection.reference.flush();
         expect(collection._suppressEvent).to.be.ok;
       });
 
@@ -333,7 +333,7 @@ describe('Backbone.Firebase.Collection', function() {
         sinon.spy(collection, 'remove');
 
         collection.reset({ id: '1'});
-        collection.firebase.flush();
+        collection.reference.flush();
 
         expect(collection.remove.calledOnce).to.be.ok;
 
@@ -345,7 +345,7 @@ describe('Backbone.Firebase.Collection', function() {
         sinon.spy(collection, 'add');
 
         collection.reset({ id: '1'});
-        collection.firebase.flush();
+        collection.reference.flush();
 
         expect(collection.add.calledOnce).to.be.ok;
 
@@ -359,7 +359,7 @@ describe('Backbone.Firebase.Collection', function() {
         collection.on('reset', spy);
 
         collection.reset({ id: '1'}, { silent: true });
-        collection.firebase.flush();
+        collection.reference.flush();
 
         expect(spy.calledOnce).to.be.false;
       });
@@ -370,7 +370,7 @@ describe('Backbone.Firebase.Collection', function() {
         collection.on('reset', spy);
 
         collection.reset({ id: '1'});
-        collection.firebase.flush();
+        collection.reference.flush();
 
         expect(spy.calledOnce).to.be.true;
       });
@@ -383,7 +383,7 @@ describe('Backbone.Firebase.Collection', function() {
         sinon.spy(Backbone.Firebase, '_promiseEvent');
 
         collection.fetch();
-        collection.firebase.flush();
+        collection.reference.flush();
 
         expect(Backbone.Firebase._promiseEvent.calledOnce).to.be.ok;
 
@@ -397,7 +397,7 @@ describe('Backbone.Firebase.Collection', function() {
           successCalled = true;
           expect(successCalled).to.be.ok;
         });
-        collection.firebase.flush();
+        collection.reference.flush();
       });
 
     });
@@ -739,7 +739,7 @@ describe('Backbone.Firebase.Collection', function() {
         });
         sinon.spy(Backbone.Firebase, '_setWithCheck');
         collection._removeModel(model, collection, null);
-        collection.firebase.flush();
+        collection.reference.flush();
         expect(Backbone.Firebase._setWithCheck.calledOnce).to.be.ok;
         Backbone.Firebase._setWithCheck.restore();
       });
@@ -767,7 +767,7 @@ describe('Backbone.Firebase.Collection', function() {
 
       collection.add({ title: 'blah' });
 
-      collection.firebase.flush();
+      collection.reference.flush();
 
       return expect(spy.called).to.be.false;
     });
@@ -778,7 +778,7 @@ describe('Backbone.Firebase.Collection', function() {
         sinon.spy(Backbone.Collection.prototype, 'create');
 
         collection.create({});
-        collection.firebase.flush();
+        collection.reference.flush();
 
         expect(Backbone.Collection.prototype.create.calledOnce).to.be.ok;
 
@@ -795,7 +795,7 @@ describe('Backbone.Firebase.Collection', function() {
     //       success: sinon.spy()
     //     };
     //     collection.fetch(options);
-    //     collection.firebase.flush();
+    //     collection.reference.flush();
     //     expect(options.success.calledOnce).to.be.ok;
     //   });
     //
@@ -805,7 +805,7 @@ describe('Backbone.Firebase.Collection', function() {
     //     collection.on('sync', function() {
     //       isSyncCalled = true;
     //     });
-    //     collection.firebase.flush();
+    //     collection.reference.flush();
     //     expect(isSyncCalled).to.be.ok;
     //   });
     //
@@ -816,7 +816,7 @@ describe('Backbone.Firebase.Collection', function() {
         sinon.spy(Backbone.Collection.prototype, 'add');
 
         collection.add({});
-        collection.firebase.flush();
+        collection.reference.flush();
 
         expect(Backbone.Collection.prototype.add.calledOnce).to.be.ok;
 

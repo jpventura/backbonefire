@@ -73,7 +73,7 @@ describe('Backbone.Firebase.Model', function() {
       model.on('destroy', spy);
 
       model.destroy();
-      model.firebase.flush();
+      model.reference.flush();
 
       expect(spy.calledOnce).to.be.ok;
 
@@ -169,7 +169,7 @@ describe('Backbone.Firebase.Model', function() {
         model.on('sync', function() {
           syncIsCalled = true;
         });
-        model.firebase.flush();
+        model.reference.flush();
         return expect(syncIsCalled).to.be.ok;
       });
 
@@ -178,7 +178,7 @@ describe('Backbone.Firebase.Model', function() {
         sinon.spy(Backbone.Firebase, '_promiseEvent');
 
         model.fetch();
-        model.firebase.flush();
+        model.reference.flush();
 
         expect(Backbone.Firebase._promiseEvent.calledOnce).to.be.ok;
 
@@ -214,7 +214,7 @@ describe('Backbone.Firebase.Model', function() {
         model.on('sync', spy);
 
         model.set('ok', 'ok');
-        model.firebase.flush();
+        model.reference.flush();
 
         return expect(spy.called).to.be.ok;
       });
@@ -223,8 +223,8 @@ describe('Backbone.Firebase.Model', function() {
         var spy = sinon.spy();
 
         var model = new Model();
-        model.firebase.on('value', spy);
-        model.firebase.flush();
+        model.reference.on('value', spy);
+        model.reference.flush();
 
         return expect(spy.called).to.be.ok;
       });
@@ -236,7 +236,7 @@ describe('Backbone.Firebase.Model', function() {
         model._listenLocalChange(spy);
 
         model.set('ok', 'ok');
-        model.firebase.flush();
+        model.reference.flush();
 
         return expect(spy.called).to.be.ok;
       });
@@ -274,7 +274,7 @@ describe('Backbone.Firebase.Model', function() {
         model._listenLocalChange(spy);
 
         model.set('ok', 'ok');
-        model.firebase.flush();
+        model.reference.flush();
 
         return expect(spy.called).to.be.ok;
       });

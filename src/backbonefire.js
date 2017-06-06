@@ -50,7 +50,7 @@
 
     if (method === 'read') {
 
-      Backbone.Firebase._readOnce(model.firebase, function onComplete(snap) {
+      Backbone.Firebase._readOnce(model.reference, function onComplete(snap) {
         var resp = snap.val();
         if(options.success) {
           options.success(resp);
@@ -63,15 +63,15 @@
 
     } else if (method === 'create') {
 
-      Backbone.Firebase._setWithCheck(model.firebase, modelJSON, options);
+      Backbone.Firebase._setWithCheck(model.reference, modelJSON, options);
 
     } else if (method === 'update') {
 
-      Backbone.Firebase._updateWithCheck(model.firebase, modelJSON, options);
+      Backbone.Firebase._updateWithCheck(model.reference, modelJSON, options);
 
     } else if(method === 'delete') {
 
-      Backbone.Firebase._setWithCheck(model.firebase, null, options);
+      Backbone.Firebase._setWithCheck(model.reference, null, options);
 
     }
 
@@ -250,7 +250,7 @@
       // Set up sync events
       this._initialSync = {};
       // apply remote changes locally
-      this.firebase.on('value', function(snap) {
+      this.reference.on('value', function(snap) {
         this._setLocal(snap);
         this._initialSync.resolve = true;
         this._initialSync.success = true;
@@ -265,7 +265,7 @@
 
       // apply local changes remotely
       this._listenLocalChange(function(model) {
-        this.firebase.update(model);
+        this.reference.update(model);
       });
 
     }
@@ -327,13 +327,13 @@
 
       switch (typeof this.url) {
       case 'string':
-        this.firebase = Backbone.Firebase._determineRef(this.url);
+        this.reference = Backbone.Firebase._determineRef(this.url);
         break;
       case 'function':
-        this.firebase = Backbone.Firebase._determineRef(this.url());
+        this.reference = Backbone.Firebase._determineRef(this.url());
         break;
       case 'object':
-        this.firebase = Backbone.Firebase._determineRef(this.url);
+        this.reference = Backbone.Firebase._determineRef(this.url);
         break;
       default:
         Backbone.Firebase._throwError('url parameter required');
@@ -439,7 +439,7 @@
        */
       create: function(model, options) {
         // XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
-        model[this.idAttribute] = model[this.idAttribute] || Backbone.Firebase._getKey(this.firebase.push());
+        model[this.idAttribute] = model[this.idAttribute] || Backbone.Firebase._getKey(this.reference.push());
         options = _.extend({ autoSync: false }, options);
         return Backbone.Collection.prototype.create.call(this, model, options);
       },
@@ -450,7 +450,7 @@
        */
       add: function(model, options) {
         // XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
-        model[this.idAttribute] = model[this.idAttribute] || Backbone.Firebase._getKey(this.firebase.push());
+        model[this.idAttribute] = model[this.idAttribute] || Backbone.Firebase._getKey(this.reference.push());
         options = _.extend({ autoSync: false }, options);
         return Backbone.Collection.prototype.add.call(this, model, options);
       },
@@ -496,16 +496,16 @@
     function SyncCollection() {
       this._initialSync = {};
       // Add handlers for remote events
-      this.firebase.on('child_added', _.bind(this._childAdded, this));
-      this.firebase.on('child_moved', _.bind(this._childMoved, this));
-      this.firebase.on('child_changed', _.bind(this._childChanged, this));
-      this.firebase.on('child_removed', _.bind(this._childRemoved, this));
+      this.reference.on('child_added', _.bind(this._childAdded, this));
+      this.reference.on('child_moved', _.bind(this._childMoved, this));
+      this.reference.on('child_changed', _.bind(this._childChanged, this));
+      this.reference.on('child_removed', _.bind(this._childRemoved, this));
 
       // Once handler to emit 'sync' event whenever data changes
       // Defer the listener incase the data is cached, because
       // then the once call would be synchronous
       _.defer(_.bind(function() {
-        this.firebase.once('value', function() {
+        this.reference.once('value', function() {
           // indicate that the call has been received from the server
           // and the data has successfully loaded
           this._initialSync.resolve = true;
@@ -543,7 +543,7 @@
           }
 
           // XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
-          var childRef = this.firebase.ref().child(model[this.idAttribute]);
+          var childRef = this.reference.child(model[this.idAttribute]);
           childRef.set(model, _.bind(options.success, model));
         }
 
@@ -571,7 +571,7 @@
         for (var i = 0; i < parsed.length; i++) {
           var model = parsed[i];
           // XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
-          var childRef = this.firebase.child(model[this.idAttribute]);
+          var childRef = this.reference.child(model[this.idAttribute]);
           if (options.silent === true) {
             this._suppressEvent = true;
           }
@@ -632,7 +632,7 @@
           var model = models[i];
 
           // XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
-          model[this.idAttribute] = model[this.idAttribute] || Backbone.Firebase._getKey(this.firebase.push());
+          model[this.idAttribute] = model[this.idAttribute] || Backbone.Firebase._getKey(this.reference.push());
 
           // call Backbone's prepareModel to apply options
           model = Backbone.Collection.prototype._prepareModel.call(
@@ -740,7 +740,7 @@
         // consolidate the updates to Firebase
         updateAttributes = this._compareAttributes(remoteAttributes, localAttributes);
 
-        ref = this.firebase.ref().child(model.id);
+        ref = this.reference.child(model.id);
 
         // if '.priority' is present setWithPriority
         // else do a regular update
@@ -789,7 +789,7 @@
         options = options ? _.clone(options) : {};
         options.success =
           _.isFunction(options.success) ? options.success : function() {};
-        var childRef = this.firebase.child(model.id);
+        var childRef = this.reference.child(model.id);
         Backbone.Firebase._setWithCheck(childRef, null, _.bind(options.success, model));
       },
 
@@ -811,13 +811,13 @@
 
       switch (typeof this.url) {
       case 'string':
-        this.firebase = Backbone.Firebase._determineRef(this.url);
+        this.reference = Backbone.Firebase._determineRef(this.url);
         break;
       case 'function':
-        this.firebase = Backbone.Firebase._determineRef(this.url());
+        this.reference = Backbone.Firebase._determineRef(this.url());
         break;
       case 'object':
-        this.firebase = Backbone.Firebase._determineRef(this.url);
+        this.reference = Backbone.Firebase._determineRef(this.url);
         break;
       default:
         throw new Error('url parameter required');
@@ -845,7 +845,7 @@
 
         var newItem = new BaseModel(attrs, opts);
         newItem.autoSync = false;
-        newItem.firebase = self.firebase.ref().child(newItem.id);
+        newItem.reference = self.reference.ref().child(newItem.id);
         newItem.sync = Backbone.Firebase.sync;
         newItem.on('change', function(model) {
           var updated = Backbone.Firebase.Model.prototype._updateModel(model);
