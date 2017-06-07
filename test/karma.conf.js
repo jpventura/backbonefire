@@ -19,7 +19,7 @@ module.exports = function(config) {
     files: [
       '../bower_components/underscore/underscore.js',
       '../bower_components/backbone/backbone.js',
-      '../bower_components/mockfirebase/browser/mockfirebase.js',
+      '../bower_components/firebase-mock/browser/firebasemock.js',
       'fixtures.js',
       '../src/backbonefire.js',
       './specs/*_test.js'
