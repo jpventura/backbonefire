@@ -146,9 +146,11 @@ describe('Backbone.Firebase.Collection', function() {
     });
 
     it('should call setWithPriority on a Firebase reference', function() {
+      var spy = sinon.spy(Backbone.Firebase.Collection, '_setWithPriority');
       collection._setWithPriority(collection.reference, item);
-      //collection.reference.flush();
-      expect(collection.reference.setWithPriority.calledOnce).to.be.ok;
+      collection.reference.flush();
+      expect(spy.calledOnce).to.be.ok;
+      Backbone.Firebase.Collection._setWithPriority.restore();
     });
 
     it('should delete local priority', function() {
@@ -165,8 +167,11 @@ describe('Backbone.Firebase.Collection', function() {
         url: 'Mock://'
       });
       collection = new Collection();
+      var spy = sinon.spy(Backbone.Firebase.Collection, '_updateToFirebase');
       collection._updateToFirebase(collection.reference, { id: '1' });
-      expect(collection.reference.update.calledOnce).to.be.ok;
+      collection.reference.flush();
+      expect(spy.calledOnce).to.be.ok;
+      Backbone.Firebase.Collection._updateToFirebase.restore();
     });
 
   });

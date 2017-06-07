@@ -140,14 +140,16 @@ describe('Backbone.Firebase', function() {
 
     var ref;
     beforeEach(function() {
-      ref = new Firebase('Mock://');
+      ref = new Firebase('mock://backbonefire.firebaseapp.com/data');
     });
 
     // To read a value one-time, once() will be called on a Firebase reference.
     it('should call Firebase.once', function() {
+      var spy = sinon.spy(ref, 'once');
       Backbone.Firebase._readOnce(ref, function() {});
       ref.flush();
-      expect(ref.once.calledOnce).to.be.ok;
+      expect(spy.calledOnce).to.be.ok;
+      ref.once.restore();
     });
 
     // _readOnce calls once() which will return a snapshot from the
@@ -169,13 +171,15 @@ describe('Backbone.Firebase', function() {
 
     var ref;
     beforeEach(function() {
-      ref = new Firebase('Mock://');
+      ref = new Firebase('mock://backbonefire.firebaseapp.com/data');
     });
 
     it('should call Firebase.set', function() {
+      var spy = sinon.spy(ref, 'set');
       Backbone.Firebase._setToFirebase(ref, {}, function() {});
       ref.flush();
-      expect(ref.set.calledOnce).to.be.ok;
+      expect(spy.calledOnce).to.be.ok;
+      return ref.set.restore();
     });
 
     it('should return a response from a callback function', function() {
@@ -193,13 +197,15 @@ describe('Backbone.Firebase', function() {
 
     var ref;
     beforeEach(function() {
-      ref = new Firebase('Mock://');
+      ref = new Firebase('mock://backbonefire.firebaseapp.com/data');
     });
 
     it('should call Firebase.update', function() {
+      var spy = sinon.spy(ref, 'update');
       Backbone.Firebase._updateToFirebase(ref, {}, function() {});
       ref.flush();
-      expect(ref.update.calledOnce).to.be.ok;
+      expect(spy.calledOnce).to.be.ok;
+      ref.update.restore();
     });
 
     it('should return a response from a callback function', function() {
@@ -253,7 +259,7 @@ describe('Backbone.Firebase', function() {
     var model;
     beforeEach(function() {
       var Model = Backbone.Firebase.Model.extend({
-        url: 'Mock://',
+        url: 'mock://backbonefire.firebaseapp.com/data',
         autoSync: false
       });
       model = new Model();
@@ -264,9 +270,9 @@ describe('Backbone.Firebase', function() {
       // sync('read', model, null)
       // This should call _readOnce with proxies to Firebase.once()
       it('should call Backbone.Firebase._readOnce', function() {
-        sinon.spy(Backbone.Firebase, '_readOnce');
+        var spy = sinon.spy(Backbone.Firebase, '_readOnce');
         Backbone.Firebase.sync('read', model, null);
-        expect(Backbone.Firebase._readOnce.calledOnce).to.be.ok;
+        expect(spy.calledOnce).to.be.ok;
         Backbone.Firebase._readOnce.restore();
       });
 
@@ -274,7 +280,7 @@ describe('Backbone.Firebase', function() {
       // This should call _readOnce and test for a success callback
       it('should call Backbone.Firebase._readOnce with a success option', function() {
         var responseExpected;
-        sinon.spy(Backbone.Firebase, '_readOnce');
+        var spy = sinon.spy(Backbone.Firebase, '_readOnce');
         Backbone.Firebase.sync('read', model, {
           success: function(resp) {
             responseExpected = resp;
@@ -292,18 +298,18 @@ describe('Backbone.Firebase', function() {
     describe('#_setWithCheck', function() {
 
       it('should call Backbone.Firebase._setToFirebase', function() {
-        sinon.spy(Backbone.Firebase, '_setToFirebase');
+        var spy = sinon.spy(Backbone.Firebase, '_setToFirebase');
         Backbone.Firebase._setWithCheck(model.reference, null, null);
-        expect(Backbone.Firebase._setToFirebase.calledOnce).to.be.ok;
+        expect(spy.calledOnce).to.be.ok;
         Backbone.Firebase._setToFirebase.restore();
       });
 
       // test that _onCompleteCheck is called
       it('should call Backbone.Firebase._onCompleteCheck', function() {
-        sinon.spy(Backbone.Firebase, '_onCompleteCheck');
+        var spy = sinon.spy(Backbone.Firebase, '_onCompleteCheck');
         Backbone.Firebase._setWithCheck(model.reference, null, null);
         model.reference.flush();
-        expect(Backbone.Firebase._onCompleteCheck.calledOnce).to.be.ok;
+        expect(spy).to.be.ok;
         Backbone.Firebase._onCompleteCheck.restore();
       });
 
@@ -312,41 +318,40 @@ describe('Backbone.Firebase', function() {
 
     describe('#sync("create", ...)', function() {
 
+      // FIXME
       it('should call Backbone.Firebase._onCompleteCheck', function() {
-        sinon.spy(Backbone.Firebase, '_onCompleteCheck');
+        var spy = sinon.spy(Backbone.Firebase, '_onCompleteCheck');
         Backbone.Firebase.sync('create', model, null);
         model.reference.flush();
-        expect(Backbone.Firebase._onCompleteCheck.calledOnce).to.be.ok;
+        expect(spy.calledOnce).to.be.ok;
         Backbone.Firebase._onCompleteCheck.restore();
       });
 
       it('should call Backbone.Firebase._setWithCheck', function() {
-        sinon.spy(Backbone.Firebase, '_setWithCheck');
+        var spy = sinon.spy(Backbone.Firebase, '_setWithCheck');
         Backbone.Firebase.sync('create', model, null);
         model.reference.flush();
-        expect(Backbone.Firebase._setWithCheck.calledOnce).to.be.ok;
+        expect(spy.calledOnce).to.be.ok;
         Backbone.Firebase._setWithCheck.restore();
       });
 
     });
 
+    // FIXME
     describe('#sync("update", ...)', function() {
-      // update
-
-      // test that _onCompleteCheck is called
       it('should call Backbone.Firebase._onCompleteCheck', function() {
-        sinon.spy(Backbone.Firebase, '_onCompleteCheck');
+        var spy = sinon.spy(Backbone.Firebase, '_onCompleteCheck');
         Backbone.Firebase.sync('update', model, null);
         model.reference.flush();
-        expect(Backbone.Firebase._onCompleteCheck.calledOnce).to.be.ok;
+        expect(spy.calledOnce).to.be.ok;
         Backbone.Firebase._onCompleteCheck.restore();
       });
 
       it('should call Backbone.Firebase._updateWithCheck', function() {
-        sinon.spy(Backbone.Firebase, '_updateWithCheck');
+        var spy = sinon.spy(Backbone.Firebase, '_updateWithCheck');
         Backbone.Firebase.sync('update', model, null);
         model.reference.flush();
-        expect(Backbone.Firebase._updateWithCheck.calledOnce).to.be.ok;
+        expect(spy.calledOnce).to.be.ok;
         Backbone.Firebase._updateWithCheck.restore();
       });
 
@@ -371,14 +376,14 @@ describe('Backbone.Firebase', function() {
     // return new Firebase if string
     it('should create a Firebase ref if a string is provided', function() {
       sinon.spy(window, 'Firebase');
-      Backbone.Firebase._determineRef('Mock://');
+      Backbone.Firebase._determineRef('mock://backbonefire.firebaseapp.com/data');
       expect(Firebase.calledOnce).to.be.ok;
       window.Firebase.restore();
     });
 
     // return object if a ref
     it('should return a Firebase ref if a ref is provided', function() {
-      var paramRef = new Firebase('Mock://');
+      var paramRef = new Firebase('mock://backbonefire.firebaseapp.com/data');
       var returnedRef = Backbone.Firebase._determineRef(paramRef);
       assert(typeof(returnedRef) === 'object');
     });
