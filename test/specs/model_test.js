@@ -68,15 +68,11 @@ describe('Backbone.Firebase.Model', function() {
     });
 
     it('should trigger the destroy event', function() {
-      var spy = sinon.spy();
+      model.on('destroy', function(model) {
+        return expect(model).not.to.be.null;
+      });
 
-      model.on('destroy', spy);
-
-      model.destroy();
-      model.reference.flush();
-
-      expect(spy.calledOnce).to.be.ok;
-
+      return model.destroy();
     });
 
   });
@@ -164,13 +160,10 @@ describe('Backbone.Firebase.Model', function() {
 
       it('should trigger "sync" when fetch is called', function() {
         var model = new Model();
-        var syncIsCalled = false;
-        model.fetch();
-        model.on('sync', function() {
-          syncIsCalled = true;
+        model.on('sync', function(model) {
+          return expect(model).not.to.be.null;
         });
-        model.reference.flush();
-        return expect(syncIsCalled).to.be.ok;
+        model.fetch();
       });
 
       it('should call Backbone.Firebase._promiseEvent', function() {
@@ -178,7 +171,6 @@ describe('Backbone.Firebase.Model', function() {
         sinon.spy(Backbone.Firebase, '_promiseEvent');
 
         model.fetch();
-        model.reference.flush();
 
         expect(Backbone.Firebase._promiseEvent.calledOnce).to.be.ok;
 
@@ -207,16 +199,15 @@ describe('Backbone.Firebase.Model', function() {
     describe('#constructor', function() {
 
       it('should call sync when model is set', function() {
-        var spy = sinon.spy();
+        var title = 'A Scandal in Bohemia';
 
         var model = new Model();
 
-        model.on('sync', spy);
+        model.on('sync', function(record) {
+          return expect(record.title).to.be.equal(title);
+        });
 
-        model.set('ok', 'ok');
-        model.reference.flush();
-
-        return expect(spy.called).to.be.ok;
+        model.set('title', title);
       });
 
       it('should set up a Firebase value listener', function() {
@@ -225,20 +216,19 @@ describe('Backbone.Firebase.Model', function() {
         var model = new Model();
         model.reference.on('value', spy);
         model.reference.flush();
-
         return expect(spy.called).to.be.ok;
       });
 
       it('should listen for local changes', function() {
+        var title = 'A Scandal in Bohemia';
+
         var model = new Model();
-        var spy = sinon.spy();
 
-        model._listenLocalChange(spy);
+        model._listenLocalChange(function (record) {
+          return expect(record.title).to.be.equal(title);
+        });
 
-        model.set('ok', 'ok');
-        model.reference.flush();
-
-        return expect(spy.called).to.be.ok;
+        return model.set('title', title);
       });
 
     });
@@ -263,20 +253,20 @@ describe('Backbone.Firebase.Model', function() {
       });
 
       it('should listen for local changes', function() {
+        var title = 'A Scandal in Bohemia';
+
         var Model = Backbone.Firebase.Model.extend({
           url: 'Mock://',
           autoSync: false
         });
 
         var model = new Model();
-        var spy = sinon.spy();
 
-        model._listenLocalChange(spy);
+        model._listenLocalChange(function(record) {
+          return expect(record.title).to.be.equal(title);
+        });
 
-        model.set('ok', 'ok');
-        model.reference.flush();
-
-        return expect(spy.called).to.be.ok;
+        return model.set('title', title);
       });
 
     });
