@@ -156,13 +156,11 @@ describe('Backbone.Firebase', function() {
     // callback function. We need to make sure we're properly returning
     // that from the callback function parameter.
     it('should return a snapshot from a callback function', function() {
-      var snapExpected;
-      Backbone.Firebase._readOnce(ref, function(snap) {
-        snapExpected = snap;
+      Backbone.Firebase._readOnce(ref, function(snapshot) {
+        expect(snapshot).to.be.defined;
+        expect(snapshot.val()).to.be.defined;
       });
       ref.flush();
-      expect(snapExpected).to.be.defined;
-      expect(snapExpected.val).to.be.defined;
     });
 
   });
