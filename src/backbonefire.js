@@ -81,14 +81,30 @@
    * A utility for a one-time read from Firebase.
    */
   Backbone.Firebase._readOnce = function(ref, onComplete) {
-    ref.once('value', onComplete);
+    var reject = function reject() {
+      return onComplete(null);
+    };
+
+    var resolve = function resolve(snapshot) {
+      return onComplete(snapshot);
+    };
+
+    return ref.once('value').then(resolve).catch(reject);
   };
 
   /**
    * A utility for a destructive save to Firebase.
    */
   Backbone.Firebase._setToFirebase = function(ref, item, onComplete) {
-    ref.set(item, onComplete);
+    var reject = function reject(err) {
+      return onComplete(err);
+    };
+
+    var resolve = function resolve() {
+      return onComplete();
+    };
+
+    return ref.set(item).then(resolve).catch(reject);
   };
 
 
@@ -96,7 +112,15 @@
    * A utility for a non-destructive save to Firebase.
    */
   Backbone.Firebase._updateToFirebase = function(ref, item, onComplete) {
-    ref.update(item, onComplete);
+    var reject = function reject(err) {
+      return onComplete(err);
+    };
+
+    var resolve = function resolve() {
+      return onComplete();
+    };
+
+    return ref.update(item).then(resolve).catch(reject);
   };
 
   /**
@@ -149,12 +173,14 @@
    */
   Backbone.Firebase._determineRef = function(objOrString) {
     switch (typeof(objOrString)) {
-    case 'string':
-      return new Firebase(objOrString);
-    case 'object':
-      return objOrString;
-    default:
-      Backbone.Firebase._throwError('Invalid type passed to url property');
+      case 'string':
+        return new Firebase(objOrString);
+
+      case 'object':
+        return objOrString;
+
+      default:
+        Backbone.Firebase._throwError('Invalid type passed to url property');
     }
   };
 
@@ -842,10 +868,16 @@
       // are unset, the callback will set them to null so that they
       // are removed on the Firebase server.
       this.model = function(attrs, opts) {
+        // FIXME: Required by firebase-mock collection tests
+        var reference = self.reference.ref;
+        if (_.isFunction(self.reference.ref)) {
+          reference = self.reference.ref();
+        }
 
         var newItem = new BaseModel(attrs, opts);
+
         newItem.autoSync = false;
-        newItem.reference = self.reference.ref().child(newItem.id);
+        newItem.reference = reference.child(newItem.id);
         newItem.sync = Backbone.Firebase.sync;
         newItem.on('change', function(model) {
           var updated = Backbone.Firebase.Model.prototype._updateModel(model);
