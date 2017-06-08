@@ -318,18 +318,18 @@ describe('Backbone.Firebase', function() {
 
       // FIXME
       it('should call Backbone.Firebase._onCompleteCheck', function() {
-        var spy = sinon.spy(Backbone.Firebase, '_onCompleteCheck');
+        sinon.spy(Backbone.Firebase, '_onCompleteCheck');
         Backbone.Firebase.sync('create', model, null);
         model.reference.flush();
-        expect(spy.calledOnce).to.be.ok;
+        expect(Backbone.Firebase._onCompleteCheck.calledOnce).to.be.ok;
         Backbone.Firebase._onCompleteCheck.restore();
       });
 
       it('should call Backbone.Firebase._setWithCheck', function() {
-        var spy = sinon.spy(Backbone.Firebase, '_setWithCheck');
+        sinon.spy(Backbone.Firebase, '_setWithCheck');
         Backbone.Firebase.sync('create', model, null);
         model.reference.flush();
-        expect(spy.calledOnce).to.be.ok;
+        expect(Backbone.Firebase._setWithCheck.calledOnce).to.be.ok;
         Backbone.Firebase._setWithCheck.restore();
       });
 
@@ -338,10 +338,10 @@ describe('Backbone.Firebase', function() {
     // FIXME
     describe('#sync("update", ...)', function() {
       it('should call Backbone.Firebase._onCompleteCheck', function() {
-        var spy = sinon.spy(Backbone.Firebase, '_onCompleteCheck');
+        sinon.spy(Backbone.Firebase, '_onCompleteCheck');
         Backbone.Firebase.sync('update', model, null);
         model.reference.flush();
-        expect(spy.calledOnce).to.be.ok;
+        expect(Backbone.Firebase._onCompleteCheck.calledOnce).to.be.ok;
         Backbone.Firebase._onCompleteCheck.restore();
       });
 

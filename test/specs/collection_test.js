@@ -131,6 +131,11 @@ describe('Backbone.Firebase.Collection', function() {
     var collection;
     var ref;
     var item;
+
+    var User = Backbone.Model.extend({
+      idAttribute: 'id'
+    });
+
     beforeEach(function() {
       var Collection = Backbone.Firebase.Collection.extend({
         url: 'Mock://',
@@ -138,19 +143,19 @@ describe('Backbone.Firebase.Collection', function() {
       });
 
       collection = new Collection();
-      item = {
+      item = new User({
         id: '1',
         '.priority': 1,
         name: 'David'
-      }
+      });
     });
 
     it('should call setWithPriority on a Firebase reference', function() {
-      var spy = sinon.spy(Backbone.Firebase, '_setWithPriority');
+      sinon.spy(collection, '_setWithPriority');
       collection._setWithPriority(collection.reference, item);
       collection.reference.flush();
-      expect(spy.calledOnce).to.be.ok;
-      Backbone.Firebase._setWithPriority.restore();
+      expect(collection._setWithPriority.calledOnce).to.be.ok;
+      collection._setWithPriority.restore();
     });
 
     it('should delete local priority', function() {
@@ -167,11 +172,11 @@ describe('Backbone.Firebase.Collection', function() {
         url: 'Mock://'
       });
       collection = new Collection();
-      var spy = sinon.spy(Backbone.Firebase.Collection, '_updateToFirebase');
+      var spy = sinon.spy(Backbone.Firebase, '_updateToFirebase');
       collection._updateToFirebase(collection.reference, { id: '1' });
       collection.reference.flush();
       expect(spy.calledOnce).to.be.ok;
-      Backbone.Firebase.Collection._updateToFirebase.restore();
+      Backbone.Firebase._updateToFirebase.restore();
     });
 
   });
