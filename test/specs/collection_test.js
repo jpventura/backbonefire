@@ -146,11 +146,11 @@ describe('Backbone.Firebase.Collection', function() {
     });
 
     it('should call setWithPriority on a Firebase reference', function() {
-      var spy = sinon.spy(Backbone.Firebase.Collection, '_setWithPriority');
+      var spy = sinon.spy(Backbone.Firebase, '_setWithPriority');
       collection._setWithPriority(collection.reference, item);
       collection.reference.flush();
       expect(spy.calledOnce).to.be.ok;
-      Backbone.Firebase.Collection._setWithPriority.restore();
+      Backbone.Firebase._setWithPriority.restore();
     });
 
     it('should delete local priority', function() {
