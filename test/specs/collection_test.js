@@ -772,8 +772,6 @@ describe('Backbone.Firebase.Collection', function() {
 
       collection.add({ title: 'blah' });
 
-      collection.reference.flush();
-
       return expect(spy.called).to.be.false;
     });
 
@@ -821,7 +819,6 @@ describe('Backbone.Firebase.Collection', function() {
         sinon.spy(Backbone.Collection.prototype, 'add');
 
         collection.add({});
-        collection.reference.flush();
 
         expect(Backbone.Collection.prototype.add.calledOnce).to.be.ok;
 
