@@ -475,7 +475,7 @@
        * Backbone.Firebase.sync with the correct method.
        */
       add: function(model, options) {
-        // XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
+        // FIXME: XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
         model[this.idAttribute] = model[this.idAttribute] || Backbone.Firebase._getKey(this.reference.push());
         options = _.extend({ autoSync: false }, options);
         return Backbone.Collection.prototype.add.call(this, model, options);
@@ -555,6 +555,14 @@
 
     SyncCollection.prototype = {
       add: function(records, options) {
+        var self = this;
+
+        // FIXME
+        var reference = this.reference;
+        if (_.isFunction(this.reference)) {
+          reference = this.reference();
+        }
+
         // prepare records
         var parsed = this._parseModels(records);
         options = options ? _.clone(options) : {};
@@ -568,9 +576,9 @@
             this._suppressEvent = true;
           }
 
-          // XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
-          var childRef = this.reference.child(record[this.idAttribute]);
-          childRef.set(record, _.bind(options.success, record));
+          // FIXME: XXX model prototype broken: this.model.prototype.idAttribute worked around as this.idAttribute
+          var childRef = reference.child(record[this.idAttribute]);
+          childRef.set(record).then(options.success);
         }
 
         return parsed;
